@@ -19,3 +19,5 @@ After:
 ```properties
 MY_SECRET=${ENC(.....)}
 ```
+
+> If encrypted values aren’t coming from system environment variables, then no changes are needed.
