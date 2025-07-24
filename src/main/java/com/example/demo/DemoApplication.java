@@ -14,50 +14,50 @@ import org.springframework.core.env.PropertySource;
 import java.util.function.Predicate;
 
 import static com.example.demo.DemoApplication.EncryptValuePropertySource.ENCRYPT_PROPERTY_SOURCE_NAME;
+import static com.ulisesbocchio.jasyptspringboot.properties.JasyptEncryptorConfigurationProperties.bindConfigProps;
 
 @SpringBootApplication
 public class DemoApplication {
 
-    public static void main(String[] args) {
-        SpringApplication.run(DemoApplication.class, args);
-    }
+	public static void main(String[] args) {
+		SpringApplication.run(DemoApplication.class, args);
+	}
 
-    @Bean
-    public static BeanFactoryPostProcessor encryptValuePropertySourcePostProcessor(ConfigurableEnvironment environment, EncryptablePropertySourceConverter converter) {
-        return new EncryptValuePropertySourcePostProcessor(environment, converter);
-    }
+	@Bean
+	public static BeanFactoryPostProcessor encryptValuePropertySourcePostProcessor(ConfigurableEnvironment environment,
+			EncryptablePropertySourceConverter converter) {
+		return new EncryptValuePropertySourcePostProcessor(environment, converter);
+	}
 
-    public record EncryptValuePropertySourcePostProcessor(
-            ConfigurableEnvironment environment,
-            EncryptablePropertySourceConverter converter
-    ) implements BeanFactoryPostProcessor {
+	public record EncryptValuePropertySourcePostProcessor(ConfigurableEnvironment environment,
+			EncryptablePropertySourceConverter converter) implements BeanFactoryPostProcessor {
 
-        @Override
-        public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
-            var properties = JasyptEncryptorConfigurationProperties.bindConfigProps(environment);
-            environment.getPropertySources().addLast(
-                    converter.makeEncryptable(new EncryptValuePropertySource(
-                            ENCRYPT_PROPERTY_SOURCE_NAME,
-                            properties.getProperty().getPrefix(),
-                            properties.getProperty().getSuffix()))
-            );
-        }
-    }
+		@Override
+		public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
+			var properties = bindConfigProps(environment);
+			environment.getPropertySources()
+				.addLast(converter.makeEncryptable(new EncryptValuePropertySource(ENCRYPT_PROPERTY_SOURCE_NAME,
+						properties.getProperty().getPrefix(), properties.getProperty().getSuffix())));
+		}
+	}
 
-    public static class EncryptValuePropertySource extends PropertySource<Predicate<String>> {
-        public static final String ENCRYPT_PROPERTY_SOURCE_NAME = "encrypt";
+	public static class EncryptValuePropertySource extends PropertySource<Predicate<String>> {
 
-        public EncryptValuePropertySource(String name, String prefix, String suffix) {
-            this(name, propertyName -> propertyName.startsWith(prefix) && propertyName.endsWith(suffix));
-        }
+		public static final String ENCRYPT_PROPERTY_SOURCE_NAME = "encrypt";
 
-        public EncryptValuePropertySource(String name, Predicate<String> matcher) {
-            super(name, matcher);
-        }
+		public EncryptValuePropertySource(String name, String prefix, String suffix) {
+			this(name, propertyName -> propertyName.startsWith(prefix) && propertyName.endsWith(suffix));
+		}
 
-        @Override
-        public Object getProperty(String name) {
-            return getSource().test(name) ? name : null;
-        }
-    }
+		public EncryptValuePropertySource(String name, Predicate<String> matcher) {
+			super(name, matcher);
+		}
+
+		@Override
+		public Object getProperty(String name) {
+			return getSource().test(name) ? name : null;
+		}
+
+	}
+
 }
