@@ -34,6 +34,17 @@ import org.springframework.core.env.Environment;
 @SetEnvironmentVariable(
     key = "S-ERVER",
     value = "${ENC(XpovJN5AbC5mFBWOZhyKI+2/6MNIcuM8I3WD2aTgtK/s4iuDx7irPX9ft9c0yDOH)}")
+@SetEnvironmentVariable(
+    key = "MY_CONFIG",
+    value = "my.name=${ENC(XpovJN5AbC5mFBWOZhyKI+2/6MNIcuM8I3WD2aTgtK/s4iuDx7irPX9ft9c0yDOH)}")
+@SetEnvironmentVariable(
+    key = "MY_YAML_CONFIG",
+    value =
+        """
+                my:
+                  yaml:
+                    name: ${ENC(XpovJN5AbC5mFBWOZhyKI+2/6MNIcuM8I3WD2aTgtK/s4iuDx7irPX9ft9c0yDOH)}
+                """)
 @SpringBootTest({
   "myserver=ENC(XpovJN5AbC5mFBWOZhyKI+2/6MNIcuM8I3WD2aTgtK/s4iuDx7irPX9ft9c0yDOH)",
   "myhost[0]=ENC(XpovJN5AbC5mFBWOZhyKI+2/6MNIcuM8I3WD2aTgtK/s4iuDx7irPX9ft9c0yDOH)",
@@ -41,7 +52,8 @@ import org.springframework.core.env.Environment;
   "my.kebab-case=ENC(XpovJN5AbC5mFBWOZhyKI+2/6MNIcuM8I3WD2aTgtK/s4iuDx7irPX9ft9c0yDOH)",
   "my.camelCase=ENC(XpovJN5AbC5mFBWOZhyKI+2/6MNIcuM8I3WD2aTgtK/s4iuDx7irPX9ft9c0yDOH)",
   "my.underscore_notation=ENC(XpovJN5AbC5mFBWOZhyKI+2/6MNIcuM8I3WD2aTgtK/s4iuDx7irPX9ft9c0yDOH)",
-  "my.mixed-CASE=ENC(XpovJN5AbC5mFBWOZhyKI+2/6MNIcuM8I3WD2aTgtK/s4iuDx7irPX9ft9c0yDOH)"
+  "my.mixed-CASE=ENC(XpovJN5AbC5mFBWOZhyKI+2/6MNIcuM8I3WD2aTgtK/s4iuDx7irPX9ft9c0yDOH)",
+  "spring.config.import=env:MY_CONFIG,env:MY_YAML_CONFIG[.yaml]"
 })
 class DemoApplicationTests {
 
@@ -57,6 +69,8 @@ class DemoApplicationTests {
     assertThat(environment.getProperty("host[0].name")).isEqualTo("Jasypt");
     assertThat(environment.getProperty("host.f00.name")).isEqualTo("Jasypt");
     assertThat(environment.getProperty("s-erver")).isEqualTo("Jasypt");
+    assertThat(environment.getProperty("my.name")).isEqualTo("Jasypt");
+    assertThat(environment.getProperty("my.yaml.name")).isEqualTo("Jasypt");
 
     // DefaultPropertyMapper scenarios
     assertThat(environment.getProperty("myserver")).isEqualTo("Jasypt");
